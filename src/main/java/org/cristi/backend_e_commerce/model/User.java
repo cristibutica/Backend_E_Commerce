@@ -2,6 +2,8 @@ package org.cristi.backend_e_commerce.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalDate;
 
@@ -30,5 +32,12 @@ public class User {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    private String region;
+
+    private String city;
+
+    @ColumnDefault("''")
+    private String street;
 
 }
