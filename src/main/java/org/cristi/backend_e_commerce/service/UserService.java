@@ -2,6 +2,7 @@ package org.cristi.backend_e_commerce.service;
 
 import org.cristi.backend_e_commerce.Repo.UserRepo;
 import org.cristi.backend_e_commerce.model.User;
+import org.cristi.backend_e_commerce.model.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public User register(User user) {
+    public User register(User user) throws UserException {
         validateUser(user);
         user.setPassword(encoder.encode(user.getPassword()));
         System.out.println(user);
@@ -22,18 +23,18 @@ public class UserService {
         return repo.save(user);
     }
 
-    private void validateUser(User user) {
+    private void validateUser(User user) throws UserException {
         if (repo.findByUsername(user.getUsername()) != null) {
-            throw new RuntimeException("Username already exists");
+            throw new UserException("Username already exists");
         }
         if (repo.findByEmail(user.getEmail()) != null) {
-            throw new RuntimeException("Email already registered");
+            throw new UserException("Email already registered");
         }
         if (!checkEmail(user.getEmail())) {
-            throw new RuntimeException("Incorrect email format");
+            throw new UserException("Incorrect email format");
         }
         if (!checkPassword(user.getPassword())) {
-            throw new RuntimeException("Password must contain a minimum of eight characters, at least one lower case letter, one upper case letter, one digit, and one special character.");
+            throw new UserException("Password must contain a minimum of eight characters, at least one lower case letter, one upper case letter, one digit, and one special character.");
         }
     }
 
