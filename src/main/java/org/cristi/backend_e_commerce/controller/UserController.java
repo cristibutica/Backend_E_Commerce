@@ -17,13 +17,23 @@ public class UserController {
     private UserService service;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
         try {
             User registeredUser = service.register(user);
             return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
         } catch (UserException e) {
             System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user){
+        String token = service.verify(user);
+        if (token != null && !token.equals("fail")) {
+            return ResponseEntity.ok(token);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
     }
 }

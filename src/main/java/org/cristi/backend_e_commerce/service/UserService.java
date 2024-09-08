@@ -4,6 +4,9 @@ import org.cristi.backend_e_commerce.Repo.UserRepo;
 import org.cristi.backend_e_commerce.model.User;
 import org.cristi.backend_e_commerce.model.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,12 @@ public class UserService {
 
     @Autowired
     private UserRepo repo;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private AuthenticationManager authManager;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
@@ -45,5 +54,23 @@ public class UserService {
 
     private boolean checkEmail(String email) {
         return email.matches("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$");
+    }
+
+    public String verify(User user) {
+        try {
+            // Auth the user
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            System.out.println("authenticated");
+            // if authenticated, generate and return token
+            if (authentication.isAuthenticated()) {
+                String token = jwtService.generateToken(user.getUsername());
+                System.out.println(token);
+                return token;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Authentication failed");
+        }
+        return "fail";
     }
 }
