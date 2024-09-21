@@ -6,9 +6,7 @@ import org.cristi.backend_e_commerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserController {
@@ -34,6 +32,18 @@ public class UserController {
             return ResponseEntity.ok(token);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }
+
+    @GetMapping("/user/myaccount")
+    public ResponseEntity<?> getCurrentUser(){
+        try{
+            User currentUser = service.getCurrentUser();
+            System.out.println(currentUser);
+            return new ResponseEntity<>(currentUser, HttpStatus.OK);
+        }catch (UserException e){
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
